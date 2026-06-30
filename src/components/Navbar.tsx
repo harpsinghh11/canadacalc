@@ -1,16 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CALCULATORS, SITE_NAME } from "@/lib/constants";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="bg-[#0f172a] text-white shadow-md">
-      <nav className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+    <header
+      className={`sticky top-0 z-50 bg-[#0f172a] text-white transition-[box-shadow,border-color] duration-200 ${
+        scrolled ? "border-b border-white/10 shadow-md" : "border-b border-transparent"
+      }`}
+    >
+      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-14 items-center justify-between">
           <Link
             href="/"
             className="text-xl font-bold tracking-tight transition-colors hover:text-[#16a34a]"
@@ -42,7 +54,7 @@ export function Navbar() {
           </ul>
         </div>
         {menuOpen && (
-          <ul className="mt-4 space-y-1 border-t border-white/10 pt-4 md:hidden">
+          <ul className="space-y-1 border-t border-white/10 pb-4 pt-2 md:hidden">
             {CALCULATORS.map((calc) => (
               <li key={calc.href}>
                 <Link

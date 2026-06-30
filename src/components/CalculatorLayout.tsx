@@ -34,7 +34,7 @@ export function CalculatorLayout({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 pb-24 sm:px-6 lg:px-8 lg:pb-8">
+    <div className="mx-auto min-w-0 max-w-7xl px-4 py-8 pb-24 sm:px-6 lg:px-8 lg:pb-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
@@ -48,7 +48,7 @@ export function CalculatorLayout({
         </div>
         <p className="mt-2 text-base text-slate-600">{description}</p>
       </div>
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         {children}
         {footer}
       </div>
@@ -62,24 +62,39 @@ interface CalculatorGridProps {
   compare?: ReactNode;
   /** Renders below inputs in the left column (e.g. year-by-year table). */
   inputsFooter?: ReactNode;
+  /** Disable sticky left column on desktop (enabled by default). */
+  stickyInputs?: boolean;
 }
+
+/** Pins inputs below the sticky navbar (h-14 / top-14 = 3.5rem). */
+const stickyInputsInnerClass =
+  "lg:sticky lg:top-14 lg:z-20 lg:bg-white lg:pb-4";
 
 export function CalculatorGrid({
   inputs,
   results,
   compare,
   inputsFooter,
+  stickyInputs = true,
 }: CalculatorGridProps) {
   return (
-    <div className="space-y-8">
+    <div className="min-w-0 space-y-8">
       {compare}
-      <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
-        <section aria-label="Calculator inputs">
-          <h2 className="mb-4 text-lg font-semibold text-[#0f172a]">Inputs</h2>
-          {inputs}
+      <div className="grid min-w-0 gap-8 lg:grid-cols-2 lg:items-stretch">
+        <section
+          aria-label="Calculator inputs"
+          className="min-w-0 max-w-full lg:self-stretch"
+        >
+          <div className={stickyInputs ? stickyInputsInnerClass : undefined}>
+            <h2 className="mb-4 text-lg font-semibold text-[#0f172a]">Inputs</h2>
+            {inputs}
+          </div>
           {inputsFooter && <div className="mt-8">{inputsFooter}</div>}
         </section>
-        <section aria-label="Calculator results">
+        <section
+          aria-label="Calculator results"
+          className="min-w-0 max-w-full"
+        >
           <h2 className="mb-4 text-lg font-semibold text-[#0f172a]">Results</h2>
           {results}
         </section>
@@ -155,13 +170,15 @@ export function ResultItem({
 
   return (
     <div
-      className={`flex items-center justify-between rounded-lg px-4 py-3 ${
+      className={`flex min-w-0 items-center justify-between gap-2 rounded-lg px-4 py-3 ${
         highlight ? "bg-[#16a34a]/10" : "bg-slate-50"
       }`}
     >
-      <span className="text-sm text-slate-600">{label}</span>
+      <span className="min-w-0 shrink text-sm text-slate-600 break-words">
+        {label}
+      </span>
       <span
-        className={`font-semibold ${highlight ? "text-[#16a34a]" : "text-[#0f172a]"}`}
+        className={`shrink-0 pl-2 text-right text-sm font-semibold tabular-nums ${highlight ? "text-[#16a34a]" : "text-[#0f172a]"}`}
       >
         {showAnimated ? (
           <AnimatedNumber

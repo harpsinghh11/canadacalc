@@ -61,10 +61,10 @@ export function ShareResultCard({
   };
 
   return (
-    <div className="mt-6">
+    <div className="mt-6 min-w-0 max-w-full">
       <div
         ref={cardRef}
-        className="relative overflow-hidden rounded-xl border-2 border-[#16a34a] bg-gradient-to-br from-white to-green-50 p-6 text-center"
+        className="relative max-w-full overflow-hidden rounded-xl border-2 border-[#16a34a] bg-gradient-to-br from-white to-green-50 p-6 text-center"
       >
         <div
           className="pointer-events-none absolute right-4 top-4 text-4xl opacity-10"
@@ -75,10 +75,10 @@ export function ShareResultCard({
         <p className="text-xs font-semibold uppercase tracking-wider text-[#16a34a]">
           CanadaCalc
         </p>
-        <p className="mt-2 text-lg font-bold text-[#0f172a]">{headline}</p>
+        <p className="mt-2 break-words text-lg font-bold text-[#0f172a]">{headline}</p>
         <div className="mt-3 space-y-1">
           {lines.map((line) => (
-            <p key={line} className="text-sm text-slate-700">
+            <p key={line} className="break-words text-sm text-slate-700">
               {line}
             </p>
           ))}

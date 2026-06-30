@@ -9,6 +9,30 @@ export interface StockLookbackResult {
   yearsHeld: number;
 }
 
+export interface PricePoint {
+  date: string;
+  price: number;
+}
+
+export interface PortfolioChartPoint {
+  date: string;
+  value: number;
+  spyValue?: number;
+}
+
+/** S&P 500 ETF tickers — skip redundant benchmark when user already holds one. */
+const SPY_PROXY_TICKERS = new Set([
+  "SPY",
+  "VOO",
+  "IVV",
+  "SPLG",
+  "OEF",
+]);
+
+export function isSpyProxyTicker(ticker: string): boolean {
+  return SPY_PROXY_TICKERS.has(ticker.trim().toUpperCase());
+}
+
 export function calculateStockLookback(
   shares: number,
   purchasePrice: number,
@@ -69,4 +93,91 @@ export function formatShareMessage(
   }).format(currentValue);
 
   return `If you bought ${shares} shares of ${ticker.toUpperCase()} on ${dateStr}, your ${invested} would be worth ${worth} today 🚀`;
+}
+
+export function formatShareComparisonLine(spyValue: number): string {
+  const spyFormatted = new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  }).format(spyValue);
+  return `(vs ${spyFormatted} if S&P 500)`;
+}
+
+export function buildNormalizedChartData(
+  stockSeries: PricePoint[],
+  spySeries: PricePoint[] | null,
+  totalInvested: number,
+  stockBasePrice: number,
+  spyBasePrice: number | null,
+): PortfolioChartPoint[] {
+  if (stockBasePrice <= 0) return [];
+
+  const dateSet = new Set<string>();
+  for (const point of stockSeries) dateSet.add(point.date);
+  if (spySeries) {
+    for (const point of spySeries) dateSet.add(point.date);
+  }
+
+  const stockMap = new Map(stockSeries.map((point) => [point.date, point.price]));
+  const spyMap = spySeries
+    ? new Map(spySeries.map((point) => [point.date, point.price]))
+    : null;
+
+  let lastStock: number | null = null;
+  let lastSpy: number | null = null;
+
+  return [...dateSet]
+    .sort()
+    .map((date) => {
+      if (stockMap.has(date)) lastStock = stockMap.get(date)!;
+      if (spyMap?.has(date)) lastSpy = spyMap.get(date)!;
+
+      const point: PortfolioChartPoint = { date, value: 0 };
+      if (lastStock !== null) {
+        point.value = totalInvested * (lastStock / stockBasePrice);
+      }
+      if (lastSpy !== null && spyBasePrice && spyBasePrice > 0) {
+        point.spyValue = totalInvested * (lastSpy / spyBasePrice);
+      }
+      return point;
+    })
+    .filter((point) => point.value > 0 || point.spyValue !== undefined);
+}
+
+export function formatBenchmarkCallout(
+  ticker: string,
+  totalInvested: number,
+  currentValue: number,
+  spyValue: number,
+): { base: string; outcome: string } {
+  const invested = formatCompactCurrency(totalInvested);
+  const spyFormatted = formatCompactCurrency(spyValue);
+  const base = `If you'd invested the same ${invested} in the S&P 500 instead, you'd have ${spyFormatted} today.`;
+
+  const difference = Math.abs(currentValue - spyValue);
+  const diffFormatted = formatCompactCurrency(difference);
+  const symbol = ticker.toUpperCase();
+
+  if (currentValue >= spyValue) {
+    const pctMore =
+      spyValue > 0 ? ((currentValue - spyValue) / spyValue) * 100 : 0;
+    return {
+      base,
+      outcome: `🎉 ${symbol} beat the S&P 500 by ${diffFormatted} (${pctMore.toFixed(0)}% more)`,
+    };
+  }
+
+  return {
+    base,
+    outcome: `📊 The S&P 500 would have earned you ${diffFormatted} more than ${symbol}`,
+  };
+}
+
+function formatCompactCurrency(amount: number): string {
+  return new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  }).format(amount);
 }

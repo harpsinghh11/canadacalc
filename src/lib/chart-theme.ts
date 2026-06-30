@@ -5,6 +5,9 @@ export const CHART_COLORS = {
   compare: "#0f172a",
   grid: "#e2e8f0",
   gapFill: "#16a34a",
+  negative: "#dc2626",
+  negativeFill: "#dc2626",
+  benchmark: "#2563eb",
 } as const;
 
 export const CHART_FONT_SIZE = 12;

@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-white">
+      <body className="flex min-h-full min-w-0 flex-col bg-white">
         {process.env.NODE_ENV === "production" && (
           <>
             <Script
@@ -47,7 +47,7 @@ export default function RootLayout({
           </>
         )}
         <Navbar />
-        <main className="flex-1">{children}</main>
+        <main className="min-w-0 flex-1">{children}</main>
         <Footer />
       </body>
     </html>

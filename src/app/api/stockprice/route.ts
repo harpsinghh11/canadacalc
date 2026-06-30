@@ -28,6 +28,7 @@ type ErrorCode =
   | "DATE_TOO_OLD"
   | "MARKET_CLOSED"
   | "NETWORK"
+  | "RATE_LIMIT"
   | "MISSING_PARAMS";
 
 function errorResponse(
@@ -71,9 +72,10 @@ async function fetchWithRetry(
   ticker: string,
 ): Promise<
   | { ok: true; data: YahooChartResponse }
-  | { ok: false; kind: "INVALID_TICKER" | "NETWORK"; lastError: string }
+  | { ok: false; kind: "INVALID_TICKER" | "NETWORK" | "RATE_LIMIT"; lastError: string }
 > {
   let sawNotFound = false;
+  let sawRateLimit = false;
 
   for (const host of ["query1", "query2"] as const) {
     const url = buildChartUrl(host, ticker, buildQuery);
@@ -103,9 +105,17 @@ async function fetchWithRetry(
         result.body,
       );
       if (result.status === 404) sawNotFound = true;
+      if (result.status === 429) sawRateLimit = true;
     }
   }
 
+  if (sawRateLimit) {
+    return {
+      ok: false,
+      kind: "RATE_LIMIT",
+      lastError: "Yahoo Finance rate limit reached",
+    };
+  }
   if (sawNotFound) {
     return { ok: false, kind: "INVALID_TICKER", lastError: "Ticker not found" };
   }
@@ -135,6 +145,41 @@ function extractClosePrice(data: YahooChartResponse): {
   }
 
   return { price: null, priceDate: null };
+}
+
+function extractPriceSeries(data: YahooChartResponse): {
+  date: string;
+  price: number;
+}[] {
+  const result = data.chart?.result?.[0];
+  const closes = result?.indicators?.quote?.[0]?.close ?? [];
+  const timestamps = result?.timestamp ?? [];
+  const series: { date: string; price: number }[] = [];
+
+  for (let i = 0; i < timestamps.length; i++) {
+    const close = closes[i];
+    if (close !== null && close !== undefined && !Number.isNaN(close)) {
+      series.push({
+        date: new Date(timestamps[i]! * 1000).toISOString().split("T")[0]!,
+        price: close,
+      });
+    }
+  }
+
+  return series;
+}
+
+function getIntervalForRange(
+  startDate: string,
+  endDate: string,
+): "1d" | "1wk" | "1mo" {
+  const start = new Date(startDate + "T12:00:00Z");
+  const end = new Date(endDate + "T12:00:00Z");
+  const days = Math.max(0, (end.getTime() - start.getTime()) / 86_400_000);
+
+  if (days <= 92) return "1d";
+  if (days <= 365 * 3) return "1wk";
+  return "1mo";
 }
 
 function isWeekend(date: Date): boolean {
@@ -243,9 +288,82 @@ async function fetchCurrentPrice(ticker: string): Promise<NextResponse> {
   });
 }
 
+async function fetchPriceSeries(
+  ticker: string,
+  startDateStr: string,
+  endDateStr: string,
+): Promise<NextResponse> {
+  const startDate = new Date(startDateStr + "T12:00:00Z");
+  const endDate = new Date(endDateStr + "T12:00:00Z");
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return errorResponse("Invalid date range", "MISSING_PARAMS", 400);
+  }
+
+  if (startDate < new Date("2000-01-01T00:00:00Z")) {
+    return errorResponse(
+      "Please select a date after January 1, 2000",
+      "DATE_TOO_OLD",
+      400,
+    );
+  }
+
+  if (startDate > endDate) {
+    return errorResponse("Start date must be before end date", "MISSING_PARAMS", 400);
+  }
+
+  const interval = getIntervalForRange(startDateStr, endDateStr);
+  const period1 = Math.floor(startDate.getTime() / 1000);
+  const period2 = Math.floor(endDate.getTime() / 1000) + 86_400;
+  const query = `interval=${interval}&period1=${period1}&period2=${period2}`;
+
+  const result = await fetchWithRetry(query, ticker);
+
+  if (!result.ok) {
+    if (result.kind === "INVALID_TICKER") {
+      return errorResponse(
+        `Ticker '${ticker}' not found. Try a valid symbol like AAPL, NVDA, or CNR.TO`,
+        "INVALID_TICKER",
+        404,
+      );
+    }
+    if (result.kind === "RATE_LIMIT") {
+      return errorResponse(
+        "Unable to load price history right now. Please try again in a moment",
+        "RATE_LIMIT",
+        429,
+      );
+    }
+    return errorResponse(
+      "Unable to load price history right now. Please try again in a moment",
+      "NETWORK",
+      502,
+    );
+  }
+
+  const series = extractPriceSeries(result.data);
+
+  if (series.length === 0) {
+    return errorResponse(
+      "No price history available for that date range",
+      "MARKET_CLOSED",
+      404,
+    );
+  }
+
+  return NextResponse.json({
+    series,
+    interval,
+    startDate: startDateStr,
+    endDate: endDateStr,
+  });
+}
+
 export async function GET(request: NextRequest) {
   const ticker = request.nextUrl.searchParams.get("ticker")?.trim();
   const dateStr = request.nextUrl.searchParams.get("date");
+  const startDate = request.nextUrl.searchParams.get("startDate");
+  const endDate = request.nextUrl.searchParams.get("endDate");
   const isCurrent = request.nextUrl.searchParams.get("current") === "true";
 
   if (!ticker) {
@@ -257,6 +375,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (startDate && endDate) {
+      return await fetchPriceSeries(ticker, startDate, endDate);
+    }
     if (isCurrent || !dateStr) {
       return await fetchCurrentPrice(ticker);
     }

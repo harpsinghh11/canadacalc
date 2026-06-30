@@ -17,6 +17,7 @@ import { FAQ } from "@/components/ui/FAQ";
 import { SmartTips } from "@/components/ui/SmartTips";
 import { ShareResultCard } from "@/components/ui/ShareResultCard";
 import { MobileResultsBar } from "@/components/ui/MobileResultsBar";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { TAX_PROVINCES } from "@/lib/constants";
@@ -147,14 +148,14 @@ export default function TaxCalculator() {
             </div>
           }
           results={
-            <div className="space-y-3">
+            <div className="space-y-3 min-w-0 max-w-full">
               <ResultItem label="Total Tax" value={formatCurrency(result.totalTax)} numericValue={result.totalTax} formatFn={formatCurrency} highlight />
               <ResultItem label="After-Tax Income" value={formatCurrency(result.afterTaxIncome)} numericValue={result.afterTaxIncome} formatFn={formatCurrency} highlight />
               <ResultItem label="Effective Rate" value={formatPercent(result.effectiveTaxRate)} />
               <ResultItem label="Marginal Rate" value={formatPercent(result.marginalTaxRate)} />
               <ResultItem label="CPP" value={formatCurrency(totalCpp)} numericValue={totalCpp} formatFn={formatCurrency} />
               <ResultItem label="EI" value={formatCurrency(result.ei)} numericValue={result.ei} formatFn={formatCurrency} />
-              <p className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+              <p className="break-words rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
                 Fun fact: The average Canadian in your income bracket pays roughly{" "}
                 {bracketAvg}% of their income in total tax.
               </p>
@@ -167,29 +168,44 @@ export default function TaxCalculator() {
                 ]}
               />
               {result.breakdown.length > 0 && (
-                <div className="mt-6 overflow-auto rounded-lg border border-slate-200">
-                  <table className="w-full text-left text-sm">
+                <div className="mt-6 min-w-0 max-w-full">
+                  <ScrollTable caption="Tax breakdown by income source" compact>
+                    <colgroup>
+                      <col style={{ width: "22%" }} />
+                      <col style={{ width: "18%" }} />
+                      <col style={{ width: "20%" }} />
+                      <col style={{ width: "20%" }} />
+                      <col style={{ width: "20%" }} />
+                    </colgroup>
                     <thead className="bg-slate-100">
                       <tr>
-                        <th className="px-3 py-2">Source</th>
-                        <th className="px-3 py-2 text-right">Amount</th>
-                        <th className="px-3 py-2 text-right">Federal</th>
-                        <th className="px-3 py-2 text-right">Provincial</th>
-                        <th className="px-3 py-2 text-right">Net</th>
+                        <th className="px-2 py-2">Source</th>
+                        <th className="px-2 py-2 text-right">Amount</th>
+                        <th className="px-2 py-2 text-right">Federal</th>
+                        <th className="px-2 py-2 text-right">Provincial</th>
+                        <th className="px-2 py-2 text-right">Net</th>
                       </tr>
                     </thead>
                     <tbody>
                       {result.breakdown.map((row) => (
                         <tr key={row.label} className="border-t border-slate-100">
-                          <td className="px-3 py-2">{row.label}</td>
-                          <td className="px-3 py-2 text-right">{formatCurrency(row.amount)}</td>
-                          <td className="px-3 py-2 text-right">{formatCurrency(row.federalTax)}</td>
-                          <td className="px-3 py-2 text-right">{formatCurrency(row.provincialTax)}</td>
-                          <td className="px-3 py-2 text-right font-medium">{formatCurrency(row.netAfterTax)}</td>
+                          <td className="break-words px-2 py-2">{row.label}</td>
+                          <td className="whitespace-nowrap px-2 py-2 text-right tabular-nums">
+                            {formatCurrency(row.amount)}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-2 text-right tabular-nums">
+                            {formatCurrency(row.federalTax)}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-2 text-right tabular-nums">
+                            {formatCurrency(row.provincialTax)}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-2 text-right font-medium tabular-nums">
+                            {formatCurrency(row.netAfterTax)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </ScrollTable>
                 </div>
               )}
             </div>

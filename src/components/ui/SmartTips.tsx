@@ -14,12 +14,12 @@ export function SmartTips({ tips }: SmartTipsProps) {
   if (tips.length === 0) return null;
 
   return (
-    <div className="mt-6 space-y-2">
+    <div className="mt-6 min-w-0 max-w-full space-y-2">
       <h3 className="text-sm font-semibold text-[#0f172a]">Smart Tips</h3>
       {tips.map((tip, i) => (
         <p
           key={i}
-          className={`rounded-lg border px-4 py-3 text-sm ${styles[tip.type]}`}
+          className={`max-w-full break-words rounded-lg border px-4 py-3 text-sm ${styles[tip.type]}`}
         >
           {tip.text}
         </p>

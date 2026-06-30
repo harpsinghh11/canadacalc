@@ -206,7 +206,7 @@ export default function SimpleInterestCalculator() {
             </div>
           }
           results={
-            <div className="space-y-4">
+            <div className="min-w-0 max-w-full space-y-4">
               <ResultItem
                 label="Total Contributions"
                 value={formatCurrency(result.totalContributions)}
@@ -238,7 +238,7 @@ export default function SimpleInterestCalculator() {
                 </span>
               </p>
 
-              <div className="h-64 sm:h-72">
+              <div className="min-w-0 max-w-full h-64 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart
                     data={result.yearlyData}
@@ -273,44 +273,46 @@ export default function SimpleInterestCalculator() {
                 <h3 className="mb-3 text-sm font-semibold text-[#0f172a]">
                   Year-by-Year Breakdown
                 </h3>
-                <ScrollTable
-                  caption="Simple interest year-by-year breakdown"
-                  compact
-                >
-                  <colgroup>
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "30%" }} />
-                    <col style={{ width: "30%" }} />
-                    <col style={{ width: "30%" }} />
-                  </colgroup>
-                  <thead className="bg-slate-100">
-                    <tr>
-                      <th className="px-2 py-2">Year</th>
-                      <th className="px-2 py-2 text-right">Contributions</th>
-                      <th className="px-2 py-2 text-right">Interest</th>
-                      <th className="px-2 py-2 text-right">Balance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.yearlyData.map((row) => (
-                      <tr
-                        key={row.year}
-                        className="border-t border-slate-100"
-                      >
-                        <td className="px-2 py-1.5 tabular-nums">{row.year}</td>
-                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
-                          {formatCurrency(row.contributions)}
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
-                          {formatCurrency(row.interest)}
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
-                          {formatCurrency(row.balance)}
-                        </td>
+                <div className="min-w-0 max-w-full max-h-96 overflow-y-auto">
+                  <ScrollTable
+                    caption="Simple interest year-by-year breakdown"
+                    compact
+                  >
+                    <colgroup>
+                      <col style={{ width: "10%" }} />
+                      <col style={{ width: "30%" }} />
+                      <col style={{ width: "30%" }} />
+                      <col style={{ width: "30%" }} />
+                    </colgroup>
+                    <thead className="sticky top-0 bg-slate-100">
+                      <tr>
+                        <th className="px-2 py-2">Year</th>
+                        <th className="px-2 py-2 text-right">Contributions</th>
+                        <th className="px-2 py-2 text-right">Interest</th>
+                        <th className="px-2 py-2 text-right">Balance</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </ScrollTable>
+                    </thead>
+                    <tbody>
+                      {result.yearlyData.map((row) => (
+                        <tr
+                          key={row.year}
+                          className="border-t border-slate-100"
+                        >
+                          <td className="px-2 py-1.5 tabular-nums">{row.year}</td>
+                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                            {formatCurrency(row.contributions)}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                            {formatCurrency(row.interest)}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                            {formatCurrency(row.balance)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </ScrollTable>
+                </div>
               </div>
 
               <div className="rounded-xl border-2 border-[#16a34a]/30 bg-green-50 p-5">

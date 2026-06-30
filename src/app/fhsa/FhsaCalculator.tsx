@@ -16,6 +16,7 @@ import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
 import { ShareResultCard } from "@/components/ui/ShareResultCard";
 import { MobileResultsBar } from "@/components/ui/MobileResultsBar";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { PROVINCES } from "@/lib/constants";
@@ -144,7 +145,7 @@ export default function FhsaCalculator() {
             </div>
           }
           results={
-            <div className="space-y-3">
+            <div className="min-w-0 max-w-full space-y-3">
               <ResultItem label={`Balance (${debounced.targetPurchaseYear})`} value={formatCurrency(result.projectedBalance)} numericValue={result.projectedBalance} formatFn={formatCurrency} highlight />
               <ResultItem label="Tax Refunds (est.)" value={formatCurrency(result.totalTaxRefunds)} numericValue={result.totalTaxRefunds} formatFn={formatCurrency} />
               <ResultItem label="Tax-Free Growth" value={formatCurrency(result.totalGrowth)} numericValue={result.totalGrowth} formatFn={formatCurrency} />
@@ -164,27 +165,43 @@ export default function FhsaCalculator() {
                   `Tax refunds: ${formatCurrency(result.totalTaxRefunds)}`,
                 ]}
               />
-              <div className="mt-6 max-h-80 overflow-auto rounded-lg border border-slate-200">
-                <table className="w-full text-left text-sm">
+              <div className="mt-6 min-w-0 max-w-full">
+                <ScrollTable
+                  caption="FHSA year-by-year projection"
+                  compact
+                  bodyClassName="max-h-80 overflow-y-auto"
+                >
+                  <colgroup>
+                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "26%" }} />
+                    <col style={{ width: "26%" }} />
+                    <col style={{ width: "28%" }} />
+                  </colgroup>
                   <thead className="sticky top-0 bg-slate-100">
                     <tr>
-                      <th className="px-3 py-2">Year</th>
-                      <th className="px-3 py-2 text-right">Contrib.</th>
-                      <th className="px-3 py-2 text-right">Refund</th>
-                      <th className="px-3 py-2 text-right">Balance</th>
+                      <th className="px-2 py-2">Year</th>
+                      <th className="px-2 py-2 text-right">Contrib.</th>
+                      <th className="px-2 py-2 text-right">Refund</th>
+                      <th className="px-2 py-2 text-right">Balance</th>
                     </tr>
                   </thead>
                   <tbody>
                     {result.yearlyData.map((row) => (
                       <tr key={row.year} className="border-t border-slate-100">
-                        <td className="px-3 py-2">{row.year}</td>
-                        <td className="px-3 py-2 text-right">{formatCurrency(row.contribution)}</td>
-                        <td className="px-3 py-2 text-right">{formatCurrency(row.taxRefund)}</td>
-                        <td className="px-3 py-2 text-right font-medium">{formatCurrency(row.balance)}</td>
+                        <td className="px-2 py-1.5 tabular-nums">{row.year}</td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.contribution)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.taxRefund)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right font-medium tabular-nums">
+                          {formatCurrency(row.balance)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </ScrollTable>
               </div>
             </div>
           }

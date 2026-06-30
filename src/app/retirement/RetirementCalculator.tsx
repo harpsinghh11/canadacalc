@@ -16,6 +16,7 @@ import { FAQ } from "@/components/ui/FAQ";
 import { SmartTips } from "@/components/ui/SmartTips";
 import { ShareResultCard } from "@/components/ui/ShareResultCard";
 import { MobileResultsBar } from "@/components/ui/MobileResultsBar";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import {
@@ -157,12 +158,12 @@ export default function RetirementCalculator() {
             </div>
           }
           results={
-            <div className="space-y-3">
+            <div className="min-w-0 max-w-full space-y-3">
               <ResultItem label="Retirement Savings" value={formatCurrency(result.projectedSavings)} numericValue={result.projectedSavings} formatFn={formatCurrency} highlight />
               <ResultItem label="Money Lasts" value={yearsLabel} />
               <ResultItem label="Monthly Income (4% rule)" value={formatCurrency(result.monthlyIncomeAvailable)} numericValue={result.monthlyIncomeAvailable} formatFn={formatCurrency} />
               <div className="mt-4">
-                <div className="mb-2 flex justify-between text-sm">
+                <div className="mb-2 flex min-w-0 justify-between gap-2 text-sm">
                   <span className="font-medium">Goal Progress</span>
                   <span>{result.progressPercent.toFixed(0)}%</span>
                 </div>
@@ -177,25 +178,38 @@ export default function RetirementCalculator() {
                 verdict={verdict}
                 verdictType={onTrack ? "success" : "warning"}
               />
-              <div className="mt-6 max-h-64 overflow-auto rounded-lg border border-slate-200">
-                <table className="w-full text-left text-sm">
+              <div className="mt-6 min-w-0 max-w-full">
+                <ScrollTable
+                  caption="Retirement savings year-by-year projection"
+                  compact
+                  bodyClassName="max-h-64 overflow-y-auto"
+                >
+                  <colgroup>
+                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "40%" }} />
+                    <col style={{ width: "40%" }} />
+                  </colgroup>
                   <thead className="sticky top-0 bg-slate-100">
                     <tr>
-                      <th className="px-3 py-2">Age</th>
-                      <th className="px-3 py-2 text-right">Contrib.</th>
-                      <th className="px-3 py-2 text-right">Balance</th>
+                      <th className="px-2 py-2">Age</th>
+                      <th className="px-2 py-2 text-right">Contrib.</th>
+                      <th className="px-2 py-2 text-right">Balance</th>
                     </tr>
                   </thead>
                   <tbody>
                     {result.yearlyData.map((row) => (
                       <tr key={row.year} className="border-t border-slate-100">
-                        <td className="px-3 py-2">{row.age}</td>
-                        <td className="px-3 py-2 text-right">{formatCurrency(row.contribution)}</td>
-                        <td className="px-3 py-2 text-right font-medium">{formatCurrency(row.balance)}</td>
+                        <td className="px-2 py-1.5 tabular-nums">{row.age}</td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.contribution)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right font-medium tabular-nums">
+                          {formatCurrency(row.balance)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </ScrollTable>
               </div>
             </div>
           }

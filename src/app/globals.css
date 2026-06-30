@@ -5,6 +5,8 @@
   --foreground: #0f172a;
   --navy: #0f172a;
   --green: #16a34a;
+  /** Matches Navbar single-row height (h-14) for sticky offsets below the nav. */
+  --site-navbar-height: 3.5rem;
 }
 
 @theme inline {

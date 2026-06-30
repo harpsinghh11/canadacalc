@@ -269,7 +269,7 @@ export default function MortgageCalculator() {
             </div>
           }
           results={
-            <div className="space-y-3">
+            <div className="min-w-0 max-w-full space-y-3">
               <ResultItem
                 label={`${frequencyLabel} Payment`}
                 value={formatCurrency(result.payment, 2)}
@@ -306,32 +306,49 @@ export default function MortgageCalculator() {
                   `Payment: ${formatCurrency(result.payment, 2)}`,
                 ]}
               />
-              <div className="mt-6">
+              <div className="mt-6 min-w-0 max-w-full">
                 <h3 className="mb-3 text-sm font-semibold">Amortization Schedule</h3>
-                <div className="max-h-80 overflow-y-auto">
-                  <ScrollTable caption="Mortgage amortization schedule">
-                    <thead className="sticky top-0 bg-slate-100">
-                      <tr>
-                        <th className="px-3 py-2">#</th>
-                        <th className="px-3 py-2 text-right">Payment</th>
-                        <th className="px-3 py-2 text-right">Principal</th>
-                        <th className="px-3 py-2 text-right">Interest</th>
-                        <th className="px-3 py-2 text-right">Balance</th>
+                <ScrollTable
+                  caption="Mortgage amortization schedule"
+                  compact
+                  bodyClassName="max-h-80 overflow-y-auto"
+                >
+                  <colgroup>
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "22%" }} />
+                    <col style={{ width: "22%" }} />
+                    <col style={{ width: "22%" }} />
+                    <col style={{ width: "24%" }} />
+                  </colgroup>
+                  <thead className="sticky top-0 bg-slate-100">
+                    <tr>
+                      <th className="px-2 py-2">#</th>
+                      <th className="px-2 py-2 text-right">Payment</th>
+                      <th className="px-2 py-2 text-right">Principal</th>
+                      <th className="px-2 py-2 text-right">Interest</th>
+                      <th className="px-2 py-2 text-right">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleSchedule.map((row) => (
+                      <tr key={row.paymentNumber} className="border-t border-slate-100">
+                        <td className="px-2 py-1.5 tabular-nums">{row.paymentNumber}</td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.payment, 2)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.principal, 2)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.interest, 2)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.balance)}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {visibleSchedule.map((row) => (
-                        <tr key={row.paymentNumber} className="border-t border-slate-100">
-                          <td className="px-3 py-2">{row.paymentNumber}</td>
-                          <td className="px-3 py-2 text-right">{formatCurrency(row.payment, 2)}</td>
-                          <td className="px-3 py-2 text-right">{formatCurrency(row.principal, 2)}</td>
-                          <td className="px-3 py-2 text-right">{formatCurrency(row.interest, 2)}</td>
-                          <td className="px-3 py-2 text-right">{formatCurrency(row.balance)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </ScrollTable>
-                </div>
+                    ))}
+                  </tbody>
+                </ScrollTable>
                 {result.schedule.length > 12 && (
                   <button
                     type="button"

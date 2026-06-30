@@ -343,90 +343,8 @@ export default function CompoundCalculator() {
               </FormField>
             </div>
           }
-          inputsFooter={
-            <div>
-              <h3 className="mb-3 text-sm font-semibold text-[#0f172a]">
-                Year-by-Year Breakdown
-              </h3>
-              <div className="max-h-96 overflow-y-auto">
-                <ScrollTable
-                  caption="Compound interest year-by-year breakdown"
-                  compact={!compare}
-                >
-                  {compare ? (
-                    <colgroup>
-                      <col style={{ width: "8%" }} />
-                      <col style={{ width: "18%" }} />
-                      <col style={{ width: "18%" }} />
-                      <col style={{ width: "18%" }} />
-                      <col style={{ width: "18%" }} />
-                      <col style={{ width: "20%" }} />
-                    </colgroup>
-                  ) : (
-                    <colgroup>
-                      <col style={{ width: "10%" }} />
-                      <col style={{ width: "30%" }} />
-                      <col style={{ width: "30%" }} />
-                      <col style={{ width: "30%" }} />
-                    </colgroup>
-                  )}
-                  <thead className="sticky top-0 bg-slate-100">
-                    <tr>
-                      <th className="px-2 py-2">Year</th>
-                      <th className="px-2 py-2 text-right">Contributions</th>
-                      <th className="px-2 py-2 text-right">
-                        Interest ({debounced.interestRate}%)
-                      </th>
-                      <th className="px-2 py-2 text-right">
-                        Balance ({debounced.interestRate}%)
-                      </th>
-                      {compare && compareResult && (
-                        <>
-                          <th className="px-2 py-2 text-right">
-                            Interest ({debounced.compareRate}%)
-                          </th>
-                          <th className="px-2 py-2 text-right">
-                            Balance ({debounced.compareRate}%)
-                          </th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {breakdownRows.map((row) => (
-                      <tr
-                        key={row.year}
-                        className="border-t border-slate-100"
-                      >
-                        <td className="px-2 py-1.5 tabular-nums">{row.year}</td>
-                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
-                          {formatCurrency(row.contributions)}
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[#16a34a]">
-                          {formatCurrency(row.primaryInterest)}
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
-                          {formatCurrency(row.primaryBalance)}
-                        </td>
-                        {compare && compareResult && (
-                          <>
-                            <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[#0f172a]">
-                              {formatCurrency(row.compareInterest ?? 0)}
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
-                              {formatCurrency(row.compareBalance ?? 0)}
-                            </td>
-                          </>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </ScrollTable>
-              </div>
-            </div>
-          }
           results={
-            <div className="space-y-3">
+            <div className="min-w-0 max-w-full space-y-3">
               <ResultItem
                 label="Final Balance"
                 value={formatCurrency(result.finalBalance)}
@@ -466,7 +384,7 @@ export default function CompoundCalculator() {
                 <h3 className="mb-3 text-sm font-semibold text-[#0f172a]">
                   Compound growth over time
                 </h3>
-                <div className="h-64 sm:h-72">
+                <div className="min-w-0 max-w-full h-64 sm:h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart
                       data={growthChartData}
@@ -508,7 +426,7 @@ export default function CompoundCalculator() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-6">
+              <div className="mt-8 min-w-0 max-w-full rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-6">
                 <h3 className="text-base font-semibold text-[#0f172a]">
                   📊 How does this compare to simple interest?
                 </h3>
@@ -519,7 +437,7 @@ export default function CompoundCalculator() {
                   </strong>{" "}
                   more than simple interest over {debounced.years} years.
                 </p>
-                <div className="mt-4 h-72 sm:h-80">
+                <div className="mt-4 min-w-0 max-w-full h-72 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart
                       data={comparisonChartData}
@@ -577,6 +495,87 @@ export default function CompoundCalculator() {
                     Try our Simple Interest Calculator →
                   </Link>
                 </p>
+              </div>
+
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-[#0f172a]">
+                  Year-by-Year Breakdown
+                </h3>
+                <div className="min-w-0 max-w-full max-h-96 overflow-y-auto">
+                  <ScrollTable
+                    caption="Compound interest year-by-year breakdown"
+                    compact={!compare}
+                  >
+                    {compare ? (
+                      <colgroup>
+                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "18%" }} />
+                        <col style={{ width: "18%" }} />
+                        <col style={{ width: "18%" }} />
+                        <col style={{ width: "18%" }} />
+                        <col style={{ width: "20%" }} />
+                      </colgroup>
+                    ) : (
+                      <colgroup>
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "30%" }} />
+                        <col style={{ width: "30%" }} />
+                        <col style={{ width: "30%" }} />
+                      </colgroup>
+                    )}
+                    <thead className="sticky top-0 bg-slate-100">
+                      <tr>
+                        <th className="px-2 py-2">Year</th>
+                        <th className="px-2 py-2 text-right">Contributions</th>
+                        <th className="px-2 py-2 text-right">
+                          Interest ({debounced.interestRate}%)
+                        </th>
+                        <th className="px-2 py-2 text-right">
+                          Balance ({debounced.interestRate}%)
+                        </th>
+                        {compare && compareResult && (
+                          <>
+                            <th className="px-2 py-2 text-right">
+                              Interest ({debounced.compareRate}%)
+                            </th>
+                            <th className="px-2 py-2 text-right">
+                              Balance ({debounced.compareRate}%)
+                            </th>
+                          </>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {breakdownRows.map((row) => (
+                        <tr
+                          key={row.year}
+                          className="border-t border-slate-100"
+                        >
+                          <td className="px-2 py-1.5 tabular-nums">{row.year}</td>
+                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                            {formatCurrency(row.contributions)}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[#16a34a]">
+                            {formatCurrency(row.primaryInterest)}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                            {formatCurrency(row.primaryBalance)}
+                          </td>
+                          {compare && compareResult && (
+                            <>
+                              <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[#0f172a]">
+                                {formatCurrency(row.compareInterest ?? 0)}
+                              </td>
+                              <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                                {formatCurrency(row.compareBalance ?? 0)}
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </ScrollTable>
+                </div>
               </div>
             </div>
           }

@@ -18,6 +18,7 @@ import { FAQ } from "@/components/ui/FAQ";
 import { SmartTips } from "@/components/ui/SmartTips";
 import { ShareResultCard } from "@/components/ui/ShareResultCard";
 import { MobileResultsBar } from "@/components/ui/MobileResultsBar";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { usePersistedState } from "@/hooks/usePersistedState";
 import { PROVINCES } from "@/lib/constants";
@@ -222,7 +223,7 @@ export default function TfsaCalculator() {
             </div>
           }
           results={
-            <div className="space-y-3">
+            <div className="min-w-0 max-w-full space-y-3">
               <ResultItem label="Projected Balance at 65" value={formatCurrency(result.projectedBalance)} numericValue={result.projectedBalance} formatFn={formatCurrency} highlight />
               <ResultItem label="Your Contribution" value={formatContributionLabel(inputs.contributionAmount, inputs.contributionFrequency)} />
               <ResultItem label="Annual Equivalent" value={formatCurrency(result.annualContribution)} numericValue={result.annualContribution} formatFn={formatCurrency} />
@@ -236,29 +237,46 @@ export default function TfsaCalculator() {
                   `Contributing ${formatContributionLabel(inputs.contributionAmount, inputs.contributionFrequency)}`,
                 ]}
               />
-              <div className="mt-6 max-h-80 overflow-auto rounded-lg border border-slate-200">
-                <table className="w-full text-left text-sm">
+              <div className="mt-6 min-w-0 max-w-full">
+                <ScrollTable
+                  caption="TFSA year-by-year projection"
+                  compact
+                  bodyClassName="max-h-80 overflow-y-auto"
+                >
+                  <colgroup>
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "18%" }} />
+                    <col style={{ width: "24%" }} />
+                    <col style={{ width: "22%" }} />
+                    <col style={{ width: "24%" }} />
+                  </colgroup>
                   <thead className="sticky top-0 bg-slate-100">
                     <tr>
-                      <th className="px-3 py-2">Age</th>
-                      <th className="px-3 py-2">Year</th>
-                      <th className="px-3 py-2 text-right">Contrib.</th>
-                      <th className="px-3 py-2 text-right">Growth</th>
-                      <th className="px-3 py-2 text-right">Balance</th>
+                      <th className="px-2 py-2">Age</th>
+                      <th className="px-2 py-2">Year</th>
+                      <th className="px-2 py-2 text-right">Contrib.</th>
+                      <th className="px-2 py-2 text-right">Growth</th>
+                      <th className="px-2 py-2 text-right">Balance</th>
                     </tr>
                   </thead>
                   <tbody>
                     {result.yearlyData.map((row) => (
                       <tr key={row.year} className="border-t border-slate-100">
-                        <td className="px-3 py-2">{row.age}</td>
-                        <td className="px-3 py-2">{row.year}</td>
-                        <td className="px-3 py-2 text-right">{formatCurrency(row.contribution)}</td>
-                        <td className="px-3 py-2 text-right">{formatCurrency(row.growth)}</td>
-                        <td className="px-3 py-2 text-right font-medium">{formatCurrency(row.balance)}</td>
+                        <td className="px-2 py-1.5 tabular-nums">{row.age}</td>
+                        <td className="px-2 py-1.5 tabular-nums">{row.year}</td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.contribution)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
+                          {formatCurrency(row.growth)}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 text-right font-medium tabular-nums">
+                          {formatCurrency(row.balance)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </ScrollTable>
               </div>
             </div>
           }
