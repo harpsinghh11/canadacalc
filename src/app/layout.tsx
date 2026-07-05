@@ -40,6 +40,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  other: {
+    "google-adsense-account": "ca-pub-4602730782027291",
+  },
 };
 
 export default function RootLayout({
