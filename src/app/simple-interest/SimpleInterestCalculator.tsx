@@ -19,6 +19,10 @@ import {
   ResultItem,
   selectClassName,
 } from "@/components/CalculatorLayout";
+import { ResultExplainer } from "@/components/ui/ResultExplainer";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import { OfficialSourceLinks } from "@/components/ui/OfficialSourceLinks";
+import { ShareResultCard } from "@/components/ui/ShareResultCard";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
@@ -98,6 +102,11 @@ export default function SimpleInterestCalculator() {
                 <strong>Total = Principal × (1 + rate × years)</strong> plus
                 interest on each contribution for its remaining period.
               </p>
+              <p>
+                <strong>Limitations:</strong> Most Canadian savings products use
+                compound interest instead; no taxes, fees, or inflation modeled.
+              </p>
+              <OfficialSourceLinks sources={["bankOfCanada", "fcac"]} />
             </HowWeCalculate>
             <FAQ
               items={[
@@ -227,6 +236,29 @@ export default function SimpleInterestCalculator() {
                 formatFn={formatCurrency}
                 highlight
               />
+              <ResultExplainer>
+                Over <strong>{debounced.years} years</strong> at{" "}
+                <strong>{debounced.annualRate}%</strong> simple interest, you would
+                earn about <strong>{formatCurrency(result.totalInterest)}</strong>{" "}
+                on top of <strong>{formatCurrency(result.totalContributions)}</strong>{" "}
+                in contributions, for a final balance of about{" "}
+                <strong>{formatCurrency(result.finalAmount)}</strong>.
+              </ResultExplainer>
+              <CalculatorAssumptions
+                items={[
+                  `Fixed ${debounced.annualRate}% rate with no compounding`,
+                  "Interest calculated only on principal and each contribution's remaining time",
+                  "No taxes, fees, or inflation adjustment",
+                  "Level contributions at the frequency you selected",
+                ]}
+              />
+              <ShareResultCard
+                headline={`${debounced.years}-year simple interest`}
+                lines={[
+                  `${formatCurrency(debounced.principal)} at ${debounced.annualRate}%`,
+                  `Final: ${formatCurrency(result.finalAmount)}`,
+                ]}
+              />
               <p className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-700">
                 <strong>Formula:</strong> Total = Principal × (1 + rate × years)
                 {hasContributions && " + interest on each contribution"}
@@ -315,14 +347,14 @@ export default function SimpleInterestCalculator() {
                 </div>
               </div>
 
-              <div className="rounded-xl border-2 border-[#16a34a]/30 bg-green-50 p-5">
-                <p className="text-sm leading-relaxed text-slate-800">
+              <div className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-muted)] p-5">
+                <p className="text-sm leading-relaxed text-[var(--foreground)]">
                   💡 Most savings accounts and investments actually use{" "}
                   <strong>compound interest</strong>, which grows faster. See
                   how much more you could earn →{" "}
                   <Link
                     href="/compound"
-                    className="font-semibold text-[#16a34a] underline hover:text-[#15803d]"
+                    className="font-semibold text-[var(--brand)] underline hover:text-[var(--brand-hover)]"
                   >
                     Compound Interest Calculator
                   </Link>

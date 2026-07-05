@@ -38,10 +38,10 @@ export function MobileResultsBar({ label, value }: MobileResultsBarProps) {
   if (hidden) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur lg:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--border)] bg-[var(--surface)]/95 px-4 py-3 shadow-lg backdrop-blur lg:hidden">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-slate-600">{label}</span>
-        <span className="text-lg font-bold text-[#16a34a]">{value}</span>
+        <span className="text-sm text-[var(--muted)]">{label}</span>
+        <span className="text-lg font-bold tabular-nums text-[var(--foreground)]">{value}</span>
       </div>
     </div>
   );

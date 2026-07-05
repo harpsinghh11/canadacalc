@@ -19,6 +19,10 @@ import {
   ResultItem,
   selectClassName,
 } from "@/components/CalculatorLayout";
+import { ResultExplainer } from "@/components/ui/ResultExplainer";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import { OfficialSourceLinks } from "@/components/ui/OfficialSourceLinks";
+import { ShareResultCard } from "@/components/ui/ShareResultCard";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
@@ -125,6 +129,12 @@ export default function FindInterestRateCalculator() {
                 target. This works with recurring contributions and different
                 compounding frequencies.
               </p>
+              <p>
+                <strong>Limitations:</strong> Assumes you can earn the solved
+                rate consistently; no taxes, fees, inflation, or market risk
+                modeled.
+              </p>
+              <OfficialSourceLinks sources={["bankOfCanada", "fcac"]} />
             </HowWeCalculate>
             <FAQ
               items={[
@@ -143,14 +153,14 @@ export default function FindInterestRateCalculator() {
                       This page solves using{" "}
                       <Link
                         href="/compound"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         compound interest
                       </Link>
                       . If you want a straight-line growth assumption, try the{" "}
                       <Link
                         href="/simple-interest"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         Simple Interest Calculator
                       </Link>
@@ -297,6 +307,43 @@ export default function FindInterestRateCalculator() {
                 numericValue={result.finalBalance}
                 formatFn={formatCurrency}
                 highlight
+              />
+              <ResultExplainer>
+                {result.targetReachedWithoutInterest ? (
+                  <>
+                    Your principal and contributions alone reach{" "}
+                    <strong>{formatCurrency(debounced.targetAmount)}</strong> in{" "}
+                    <strong>{debounced.years} years</strong> — no growth needed.
+                  </>
+                ) : (
+                  <>
+                    To reach <strong>{formatCurrency(debounced.targetAmount)}</strong> in{" "}
+                    <strong>{debounced.years} years</strong>, you need about{" "}
+                    <strong>{formatPercent(result.requiredRate)}</strong> per year
+                    with {debounced.compoundingFrequency} compounding. About{" "}
+                    <strong>{formatCurrency(result.totalInterest)}</strong> would
+                    come from interest on top of{" "}
+                    <strong>{formatCurrency(result.totalContributions)}</strong> in
+                    contributions.
+                  </>
+                )}
+              </ResultExplainer>
+              <CalculatorAssumptions
+                items={[
+                  `${debounced.compoundingFrequency.charAt(0).toUpperCase() + debounced.compoundingFrequency.slice(1)} compounding with level contributions`,
+                  "Required rate held constant for the full time horizon",
+                  "No taxes, investment fees, or inflation adjustment",
+                  "Target must exceed principal plus contributions alone",
+                ]}
+              />
+              <ShareResultCard
+                headline={`Goal: ${formatCurrency(debounced.targetAmount)} in ${debounced.years} yr`}
+                lines={[
+                  result.targetReachedWithoutInterest
+                    ? "No growth needed — savings alone hit the target"
+                    : `Required rate: ${formatPercent(result.requiredRate)}`,
+                  `Contributions: ${formatCurrency(result.totalContributions)}`,
+                ]}
               />
 
               <p className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-700">

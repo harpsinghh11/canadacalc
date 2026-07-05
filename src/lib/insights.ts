@@ -1,5 +1,5 @@
 import { formatCurrency } from "./format";
-import { TFSA_ANNUAL_LIMIT_2025 } from "./tfsa";
+import { TFSA_ANNUAL_LIMIT_2026 } from "./tfsa";
 import { estimateCmhcPremium } from "./cmhc";
 import { type TaxInput } from "./tax";
 import { calculateRetirement } from "./retirement";
@@ -45,7 +45,7 @@ export function getTfsaTips(
 ): SmartTip[] {
   const tips: SmartTip[] = [];
 
-  const gap = TFSA_ANNUAL_LIMIT_2025 - annualContribution;
+  const gap = TFSA_ANNUAL_LIMIT_2026 - annualContribution;
   const extraPerMonth = gap / 12;
 
   if (extraPerMonth <= 0) {
@@ -79,7 +79,7 @@ export function getTfsaTips(
 
   tips.push({
     type: "info",
-    text: `Did you know? If you've never contributed and were 18+ in 2009, you could have up to ${formatCurrency(cumulativeRoom)} in TFSA room right now.`,
+    text: `Reference only: cumulative annual TFSA dollar limits since you turned 18 total about ${formatCurrency(cumulativeRoom)} through 2026 — not your personalized CRA contribution room. Check your CRA account before contributing.`,
   });
 
   return tips;

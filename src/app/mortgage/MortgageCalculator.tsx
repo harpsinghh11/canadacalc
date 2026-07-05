@@ -16,6 +16,10 @@ import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
 import { SmartTips } from "@/components/ui/SmartTips";
 import { ScrollTable } from "@/components/ui/ScrollTable";
+import { LastUpdated } from "@/components/ui/LastUpdated";
+import { ResultExplainer } from "@/components/ui/ResultExplainer";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import { OfficialSourceLinks } from "@/components/ui/OfficialSourceLinks";
 import { ShareResultCard } from "@/components/ui/ShareResultCard";
 import { MobileResultsBar } from "@/components/ui/MobileResultsBar";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -101,7 +105,8 @@ export default function MortgageCalculator() {
     <>
       <CalculatorLayout
         title="Mortgage Calculator"
-        description="Calculate your Canadian mortgage payments using semi-annual compounding, as required by Canadian law."
+        badge={<LastUpdated>Canadian semi-annual compounding</LastUpdated>}
+        description="Calculate your Canadian mortgage payments using semi-annual compounding — with payment and amortization explained."
         footer={
           <>
             <HowWeCalculate>
@@ -109,9 +114,15 @@ export default function MortgageCalculator() {
                 Canadian mortgages use <strong>semi-annual compounding</strong>,
                 not monthly. We convert your annual rate to an effective monthly
                 rate with: (1 + rate÷2)^(1/6) − 1, then apply the standard
-                amortization payment formula. This is different from US mortgages
-                that simply divide the annual rate by 12.
+                amortization payment formula. This differs from US mortgages
+                that divide the annual rate by 12.
               </p>
+              <p>
+                <strong>Limitations:</strong> Does not include property tax,
+                insurance, CMHC premiums, or the federal stress-test qualifying
+                rate. Payment is principal + interest only.
+              </p>
+              <OfficialSourceLinks sources={["fcac", "osfi"]} />
             </HowWeCalculate>
             <FAQ
               items={[
@@ -125,14 +136,14 @@ export default function MortgageCalculator() {
                       payment frequency. Learn more about{" "}
                       <Link
                         href="/compound"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         compound
                       </Link>{" "}
                       vs{" "}
                       <Link
                         href="/simple-interest"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         simple interest
                       </Link>
@@ -171,7 +182,7 @@ export default function MortgageCalculator() {
             type="checkbox"
             checked={compare}
             onChange={(e) => setCompare(e.target.checked)}
-            className="rounded border-slate-300 text-[#16a34a]"
+            className="rounded accent-[var(--brand)] border-[var(--border-strong)]"
           />
           Compare two interest rate scenarios
         </label>
@@ -297,6 +308,22 @@ export default function MortgageCalculator() {
                 numericValue={result.totalCost}
                 formatFn={formatCurrency}
               />
+              <ResultExplainer>
+                Your <strong>{frequencyLabel.toLowerCase()}</strong> payment of{" "}
+                <strong>{formatCurrency(result.payment, 2)}</strong> covers
+                principal and interest over {debounced.amortizationYears} years.
+                You would pay about{" "}
+                <strong>{formatCurrency(result.totalInterest)}</strong> in
+                interest on top of the amount borrowed.
+              </ResultExplainer>
+              <CalculatorAssumptions
+                items={[
+                  "Fixed rate for the full amortization period",
+                  "Canadian semi-annual compounding converted to payment frequency",
+                  "No CMHC insurance, property tax, or condo fees",
+                  "Stress-test qualifying rate not applied",
+                ]}
+              />
               <SmartTips tips={tips} />
               <ShareResultCard
                 headline={`${frequencyLabel} mortgage payment`}
@@ -353,7 +380,7 @@ export default function MortgageCalculator() {
                   <button
                     type="button"
                     onClick={() => setShowAll(!showAll)}
-                    className="mt-3 text-sm font-medium text-[#16a34a]"
+                    className="mt-3 text-sm font-medium text-[var(--brand)]"
                   >
                     {showAll ? "Show first 12" : `Show all ${result.schedule.length}`}
                   </button>

@@ -20,6 +20,9 @@ import {
   ResultItem,
   selectClassName,
 } from "@/components/CalculatorLayout";
+import { ResultExplainer } from "@/components/ui/ResultExplainer";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import { OfficialSourceLinks } from "@/components/ui/OfficialSourceLinks";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
@@ -176,6 +179,11 @@ export default function CompoundCalculator() {
                 any contributions made that period. More frequent compounding
                 earns slightly more over time.
               </p>
+              <p>
+                <strong>Limitations:</strong> Fixed rate for the full period; no
+                taxes, fees, inflation, or market volatility modeled.
+              </p>
+              <OfficialSourceLinks sources={["bankOfCanada", "fcac"]} />
             </HowWeCalculate>
             <FAQ
               items={[
@@ -188,7 +196,7 @@ export default function CompoundCalculator() {
                       time. Compare with{" "}
                       <Link
                         href="/simple-interest"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         simple interest
                       </Link>
@@ -211,7 +219,7 @@ export default function CompoundCalculator() {
                       comparison below or try our{" "}
                       <Link
                         href="/simple-interest"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         Simple Interest Calculator
                       </Link>
@@ -237,7 +245,7 @@ export default function CompoundCalculator() {
             type="checkbox"
             checked={compare}
             onChange={(e) => setCompare(e.target.checked)}
-            className="h-4 w-4 rounded text-[#16a34a]"
+            className="h-4 w-4 rounded accent-[var(--brand)]"
           />
           Compare two interest rate scenarios
         </label>
@@ -372,6 +380,24 @@ export default function CompoundCalculator() {
                 numericValue={result.totalInterest}
                 formatFn={formatCurrency}
               />
+              <ResultExplainer>
+                After <strong>{debounced.years} years</strong> at{" "}
+                <strong>{debounced.interestRate}%</strong> with{" "}
+                {debounced.compoundingFrequency} compounding, your balance could
+                reach about <strong>{formatCurrency(result.finalBalance)}</strong>.
+                Of that, <strong>{formatCurrency(result.totalInterest)}</strong>{" "}
+                would come from interest on top of{" "}
+                <strong>{formatCurrency(result.totalContributions)}</strong> in
+                contributions.
+              </ResultExplainer>
+              <CalculatorAssumptions
+                items={[
+                  `Fixed ${debounced.interestRate}% annual rate for the full ${debounced.years}-year period`,
+                  `${debounced.compoundingFrequency.charAt(0).toUpperCase() + debounced.compoundingFrequency.slice(1)} compounding with contributions added each period`,
+                  "No taxes, investment fees, or inflation adjustment",
+                  "Contributions stay level for the entire projection",
+                ]}
+              />
               <ShareResultCard
                 headline={`${debounced.years}-year growth plan`}
                 lines={[
@@ -490,7 +516,7 @@ export default function CompoundCalculator() {
                   Just want simple interest?{" "}
                   <Link
                     href="/simple-interest"
-                    className="font-medium text-[#16a34a] underline hover:text-[#15803d]"
+                    className="font-medium text-[var(--brand)] underline hover:text-[var(--brand-hover)]"
                   >
                     Try our Simple Interest Calculator →
                   </Link>
@@ -555,7 +581,7 @@ export default function CompoundCalculator() {
                           <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">
                             {formatCurrency(row.contributions)}
                           </td>
-                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[#16a34a]">
+                          <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[var(--positive)]">
                             {formatCurrency(row.primaryInterest)}
                           </td>
                           <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums">

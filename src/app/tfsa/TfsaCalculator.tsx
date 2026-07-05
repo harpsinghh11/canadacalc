@@ -11,7 +11,10 @@ import {
   inputErrorClassName,
   selectClassName,
 } from "@/components/CalculatorLayout";
-import { TaxYearBadge } from "@/components/ui/TaxYearBadge";
+import { LastUpdated } from "@/components/ui/LastUpdated";
+import { ResultExplainer } from "@/components/ui/ResultExplainer";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import { OfficialSourceLinks } from "@/components/ui/OfficialSourceLinks";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
@@ -30,7 +33,8 @@ import {
 } from "@/lib/contribution";
 import { formatCurrency } from "@/lib/format";
 import {
-  TFSA_ANNUAL_LIMIT_2025,
+  TFSA_ANNUAL_LIMIT_2026,
+  TFSA_CUMULATIVE_ROOM_2026,
   calculateTfsa,
   getCumulativeTfsaRoom,
 } from "@/lib/tfsa";
@@ -92,8 +96,8 @@ export default function TfsaCalculator() {
     <>
       <CalculatorLayout
         title="TFSA Calculator"
-        badge={<TaxYearBadge />}
-        description={`Project your Tax-Free Savings Account growth to age 65. The 2025 annual limit is ${formatCurrency(TFSA_ANNUAL_LIMIT_2025)}.`}
+        badge={<LastUpdated>2026 TFSA contribution limits</LastUpdated>}
+        description={`Project your Tax-Free Savings Account to age 65 with CRA limits explained. 2026 annual limit: ${formatCurrency(TFSA_ANNUAL_LIMIT_2026)}.`}
         footer={
           <>
             <HowWeCalculate>
@@ -103,12 +107,20 @@ export default function TfsaCalculator() {
                 CRA limit). Contribution room starts the year you turned 18 (or
                 2009, whichever is later) and accumulates each January.
               </p>
+              <p>
+                <strong>Limitations:</strong> Steady return rate assumed; does
+                not model withdrawals, over-contributions, spousal transfers,
+                residency gaps, or your personal CRA contribution room. The
+                cumulative limit figure is a reference total of annual dollar
+                limits — check your CRA account before contributing.
+              </p>
+              <OfficialSourceLinks sources={["cra", "craTfsa"]} />
             </HowWeCalculate>
             <FAQ
               items={[
                 {
-                  q: "How much TFSA room do I have in 2025?",
-                  a: `The annual limit is $7,000. If you were 18+ since 2009 and never contributed, cumulative room is up to $102,000. Room starts the year you turn 18.`,
+                  q: "How much TFSA room do I have in 2026?",
+                  a: `The 2026 annual dollar limit is $7,000. The maximum cumulative TFSA dollar limits through 2026 total $${TFSA_CUMULATIVE_ROOM_2026.toLocaleString("en-CA")} for someone who was eligible and a Canadian resident for every applicable year since 2009 and has not used any contribution room. Your actual contribution room may differ based on age, residency, and past contributions or withdrawals. Check your records and CRA account before contributing.`,
                 },
                 {
                   q: "What happens if I over-contribute?",
@@ -125,7 +137,7 @@ export default function TfsaCalculator() {
                       Investments inside a TFSA typically earn{" "}
                       <Link
                         href="/compound"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         compound interest
                       </Link>
@@ -133,14 +145,14 @@ export default function TfsaCalculator() {
                       with our{" "}
                       <Link
                         href="/compound"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         Compound
                       </Link>{" "}
                       or{" "}
                       <Link
                         href="/simple-interest"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         Simple Interest
                       </Link>{" "}
@@ -183,7 +195,7 @@ export default function TfsaCalculator() {
                   className={inputClassName}
                 />
               </FormField>
-              <FormField label="Contribution Amount" htmlFor="contributionAmount" hint={`2025 limit: ${formatCurrency(TFSA_ANNUAL_LIMIT_2025)}/yr`}>
+              <FormField label="Contribution Amount" htmlFor="contributionAmount" hint={`2026 limit: ${formatCurrency(TFSA_ANNUAL_LIMIT_2026)}/yr`}>
                 <input
                   id="contributionAmount"
                   type="number"
@@ -215,7 +227,7 @@ export default function TfsaCalculator() {
                   className={inputClassName}
                 />
               </FormField>
-              <FormField label="Province" htmlFor="province">
+              <FormField label="Province" htmlFor="province" hint="For your reference — TFSA rules are federal and the same in every province.">
                 <select id="province" value={inputs.province} onChange={(e) => set("province", e.target.value)} className={selectClassName}>
                   {PROVINCES.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
                 </select>
@@ -227,8 +239,28 @@ export default function TfsaCalculator() {
               <ResultItem label="Projected Balance at 65" value={formatCurrency(result.projectedBalance)} numericValue={result.projectedBalance} formatFn={formatCurrency} highlight />
               <ResultItem label="Your Contribution" value={formatContributionLabel(inputs.contributionAmount, inputs.contributionFrequency)} />
               <ResultItem label="Annual Equivalent" value={formatCurrency(result.annualContribution)} numericValue={result.annualContribution} formatFn={formatCurrency} />
-              <ResultItem label="Your TFSA Room" value={formatCurrency(cumulativeRoom)} numericValue={cumulativeRoom} formatFn={formatCurrency} />
+              <ResultItem label="Reference cumulative limits (est.)" value={formatCurrency(cumulativeRoom)} numericValue={cumulativeRoom} formatFn={formatCurrency} />
+              <p className="text-xs leading-relaxed text-[var(--muted)]">
+                Sum of annual CRA dollar limits from the year you turned 18 (or
+                2009) through 2026 — not your personal available contribution
+                room. Check your records and CRA account before contributing.
+              </p>
               <ResultItem label="Total Growth" value={formatCurrency(result.totalGrowth)} numericValue={result.totalGrowth} formatFn={formatCurrency} />
+              <ResultExplainer>
+                If you keep contributing at this pace until age 65, your TFSA could
+                reach about <strong>{formatCurrency(result.projectedBalance)}</strong>.
+                That growth is tax-free when withdrawn. The reference cumulative
+                limit total for your age is about{" "}
+                <strong>{formatCurrency(cumulativeRoom)}</strong> (2026 annual limits
+                applied from your eligibility start year — not personalized CRA room).
+              </ResultExplainer>
+              <CalculatorAssumptions
+                items={[
+                  "2026 CRA annual contribution limit; reference cumulative limits by age only",
+                  "Steady return rate and regular contributions until age 65",
+                  "No withdrawals, residency history, or personalized CRA room modeled",
+                ]}
+              />
               <SmartTips tips={tips} />
               <ShareResultCard
                 headline="My TFSA projection"

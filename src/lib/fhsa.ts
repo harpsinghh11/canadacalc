@@ -4,7 +4,7 @@ import {
   calculateIncomeTaxOnly,
 } from "@/lib/tax";
 
-/** 2025 annual FHSA contribution limit (CRA) */
+/** 2026 annual FHSA participation room (CRA) */
 export const FHSA_ANNUAL_LIMIT = 8000;
 
 /** Maximum FHSA contribution in a single year with carryforward (CRA) */

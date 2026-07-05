@@ -1,10 +1,14 @@
 /** Shared Recharts styling — import everywhere instead of ad-hoc colors. */
 export const CHART_COLORS = {
-  primary: "#16a34a",
+  /** Neutral primary series (growth projections, balances). */
+  primary: "#0f172a",
   secondary: "#64748b",
-  compare: "#0f172a",
-  grid: "#e2e8f0",
-  gapFill: "#16a34a",
+  compare: "#475569",
+  grid: "#e4e4e7",
+  gapFill: "#0f172a",
+  /** Positive performance (e.g. stock gains). */
+  positive: "#15803d",
+  positiveFill: "#15803d",
   negative: "#dc2626",
   negativeFill: "#dc2626",
   benchmark: "#2563eb",

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import MortgageCalculator from "./MortgageCalculator";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Mortgage Calculator",
+export const metadata: Metadata = createPageMetadata({
+  title: "Canadian Mortgage Calculator",
   description:
-    "Calculate Canadian mortgage payments with semi-annual compounding. Compare monthly, biweekly, and weekly payment frequencies.",
-};
+    "Calculate mortgage payments with Canadian semi-annual compounding. Monthly, biweekly, and weekly schedules.",
+  path: "/mortgage",
+});
 
 export default function MortgagePage() {
   return <MortgageCalculator />;

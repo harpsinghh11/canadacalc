@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CALCULATORS } from "@/lib/constants";
 
@@ -43,6 +43,36 @@ export function FinancialHealthQuiz() {
     0,
   );
 
+  const scoreMessage =
+    score >= 80
+      ? "You're in great shape — keep it up!"
+      : score >= 50
+        ? "Solid foundation — a few gaps to close."
+        : "Lots of room to grow — start with one calculator below.";
+
+  const scoreColorClass =
+    score >= 80
+      ? "text-[var(--positive)]"
+      : score >= 50
+        ? "text-[var(--warning)]"
+        : "text-[var(--negative)]";
+
+  const suggestionLinks = useMemo(() => {
+    if (!submitted) return [];
+    const seen = new Set<string>();
+    const links: { href: string; title: string }[] = [];
+    QUESTIONS.forEach((item, i) => {
+      if (answers[i]) return;
+      item.links.forEach((href) => {
+        if (seen.has(href)) return;
+        seen.add(href);
+        const calc = CALCULATORS.find((c) => c.href === href);
+        if (calc) links.push({ href, title: calc.title });
+      });
+    });
+    return links;
+  }, [answers, submitted]);
+
   const toggle = (index: number) => {
     const next = [...answers];
     next[index] = !next[index];
@@ -51,12 +81,12 @@ export function FinancialHealthQuiz() {
   };
 
   return (
-    <section className="border-y border-slate-200 bg-gradient-to-b from-green-50/50 to-white px-4 py-16 sm:px-6 lg:px-8">
+    <section className="border-y border-[var(--border)] bg-[var(--surface-muted)] px-4 py-14 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
-        <h2 className="text-center text-2xl font-bold text-[#0f172a]">
-          Financial Health Score 🍁
+        <h2 className="text-center text-2xl font-bold text-[var(--foreground)]">
+          Financial Health Score
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-600">
+        <p className="mt-2 text-center text-sm text-[var(--muted)]">
           A quick 2-minute check — how are you doing?
         </p>
 
@@ -64,15 +94,15 @@ export function FinancialHealthQuiz() {
           {QUESTIONS.map((item, i) => (
             <label
               key={item.q}
-              className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-[#16a34a]/40"
+              className="flex cursor-pointer items-start gap-3 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-4 transition-colors hover:border-[var(--brand)]/30"
             >
               <input
                 type="checkbox"
                 checked={answers[i]}
                 onChange={() => toggle(i)}
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-[#16a34a] focus:ring-[#16a34a]"
+                className="mt-1 h-4 w-4 rounded border-[var(--border-strong)] text-[var(--brand)] focus:ring-[var(--brand)]"
               />
-              <span className="text-sm text-slate-700">{item.q}</span>
+              <span className="text-sm text-[var(--foreground)]">{item.q}</span>
             </label>
           ))}
         </div>
@@ -80,39 +110,26 @@ export function FinancialHealthQuiz() {
         <button
           type="button"
           onClick={() => setSubmitted(true)}
-          className="mt-6 w-full rounded-lg bg-[#16a34a] px-4 py-3 text-sm font-medium text-white hover:bg-[#15803d]"
+          className="mt-6 w-full rounded-[var(--radius-control)] bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
         >
           See my score
         </button>
 
         {submitted && (
-          <div className="mt-6 rounded-xl border-2 border-[#16a34a] bg-white p-6 text-center">
-            <p className="text-5xl font-bold text-[#16a34a]">{score}</p>
-            <p className="mt-1 text-sm text-slate-600">out of 100</p>
-            <p className="mt-4 text-sm text-slate-700">
-              {score >= 80
-                ? "You're in great shape — keep it up!"
-                : score >= 50
-                  ? "Solid foundation — a few gaps to close."
-                  : "Lots of room to grow — start with one calculator below."}
-            </p>
+          <div className="mt-6 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
+            <p className={`text-5xl font-bold tabular-nums ${scoreColorClass}`}>{score}</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">out of 100</p>
+            <p className="mt-4 text-sm text-[var(--foreground)]">{scoreMessage}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              {QUESTIONS.map((item, i) =>
-                !answers[i]
-                  ? item.links.map((href) => {
-                      const calc = CALCULATORS.find((c) => c.href === href);
-                      return calc ? (
-                        <Link
-                          key={`${i}-${href}`}
-                          href={href}
-                          className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-[#0f172a] hover:bg-[#16a34a]/10"
-                        >
-                          {calc.title}
-                        </Link>
-                      ) : null;
-                    })
-                  : null,
-              )}
+              {suggestionLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-full bg-[var(--surface-muted)] px-3 py-1 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--brand-muted)]"
+                >
+                  {link.title}
+                </Link>
+              ))}
             </div>
           </div>
         )}

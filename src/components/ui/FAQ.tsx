@@ -36,31 +36,31 @@ export function FAQ({ items }: FAQProps) {
   };
 
   return (
-    <div className="mt-8 border-t border-slate-200 pt-6">
+    <div className="mt-8 border-t border-[var(--border)] pt-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h3 className="mb-4 text-lg font-semibold text-[#0f172a]">
+      <h3 className="mb-4 text-lg font-semibold text-[var(--foreground)]">
         Frequently Asked Questions
       </h3>
       <div className="space-y-2">
         {items.map((item, i) => (
           <div
             key={item.q}
-            className="overflow-hidden rounded-lg border border-slate-200"
+            className="overflow-hidden rounded-[var(--radius-control)] border border-[var(--border)]"
           >
             <button
               type="button"
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              className="flex min-h-[44px] w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[#0f172a] hover:bg-slate-50"
+              className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
               aria-expanded={openIndex === i}
             >
               {item.q}
-              <span>{openIndex === i ? "−" : "+"}</span>
+              <span aria-hidden>{openIndex === i ? "−" : "+"}</span>
             </button>
             {openIndex === i && (
-              <div className="border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
+              <div className="border-t border-[var(--border)] px-4 py-3 text-sm text-[var(--muted)]">
                 {item.a}
               </div>
             )}

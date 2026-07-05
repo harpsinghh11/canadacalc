@@ -11,6 +11,10 @@ import {
   inputErrorClassName,
   selectClassName,
 } from "@/components/CalculatorLayout";
+import { LastUpdated } from "@/components/ui/LastUpdated";
+import { ResultExplainer } from "@/components/ui/ResultExplainer";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import { OfficialSourceLinks } from "@/components/ui/OfficialSourceLinks";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
@@ -69,15 +73,23 @@ export default function FhsaCalculator() {
     <>
       <CalculatorLayout
         title="FHSA Calculator"
-        description={`Plan your First Home Savings Account. Annual limit: ${formatCurrency(FHSA_ANNUAL_LIMIT)}. Lifetime: ${formatCurrency(FHSA_LIFETIME_LIMIT)}.`}
+        badge={<LastUpdated>2026 FHSA limits</LastUpdated>}
+        description={`Plan your First Home Savings Account with 2026 CRA rules. Annual participation room: ${formatCurrency(FHSA_ANNUAL_LIMIT)}. Lifetime contribution limit: ${formatCurrency(FHSA_LIFETIME_LIMIT)}.`}
         footer={
           <>
             <HowWeCalculate>
               <p>
                 FHSA contributions are tax-deductible and growth is tax-free. We enforce
-                $8,000/year, up to $16,000 with 1-year carryforward, $40,000 lifetime cap,
-                and account closure by age 71 or 15 years (whichever comes first).
+                2026 CRA rules: $8,000 annual participation room, up to $16,000 with
+                one-year carryforward, $40,000 lifetime contribution limit, and account
+                closure by age 71 or 15 years (whichever comes first).
               </p>
+              <p>
+                <strong>Limitations:</strong> Tax refunds use a fixed $75,000 income
+                assumption for marginal rate; does not model RRSP transfers, qualifying
+                home purchase rules, or account opening eligibility.
+              </p>
+              <OfficialSourceLinks sources={["cra", "craFhsa", "craRrsp"]} />
             </HowWeCalculate>
             <FAQ
               items={[
@@ -92,14 +104,14 @@ export default function FhsaCalculator() {
                       over time. Compare{" "}
                       <Link
                         href="/compound"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         compound
                       </Link>{" "}
                       vs{" "}
                       <Link
                         href="/simple-interest"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         simple interest
                       </Link>{" "}
@@ -121,7 +133,12 @@ export default function FhsaCalculator() {
               <FormField label="Current Age" htmlFor="currentAge" tooltip="The FHSA is for Canadian residents 18–71 saving for a first home." error={errors.currentAge}>
                 <input id="currentAge" type="number" value={inputs.currentAge} onChange={(e) => set("currentAge", Number(e.target.value))} className={errors.currentAge ? inputErrorClassName : inputClassName} />
               </FormField>
-              <FormField label="Province" htmlFor="province" tooltip="Used to estimate your marginal tax refund on contributions.">
+              <FormField
+                label="Province"
+                htmlFor="province"
+                tooltip="Used to estimate your marginal tax refund on contributions."
+                hint="Marginal rate estimated from 2026 federal and provincial or territorial brackets."
+              >
                 <select id="province" value={inputs.province} onChange={(e) => set("province", e.target.value)} className={selectClassName}>
                   {PROVINCES.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
                 </select>
@@ -157,6 +174,22 @@ export default function FhsaCalculator() {
               {result.accountExpiryWarning && (
                 <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">{result.accountExpiryWarning}</p>
               )}
+              <ResultExplainer>
+                By <strong>{debounced.targetPurchaseYear}</strong>, your FHSA could hold
+                about <strong>{formatCurrency(result.projectedBalance)}</strong> —
+                contributions plus tax-free growth. Estimated tax refunds on
+                contributions total about{" "}
+                <strong>{formatCurrency(result.totalTaxRefunds)}</strong> based on
+                your province&apos;s marginal rate.
+              </ResultExplainer>
+              <CalculatorAssumptions
+                items={[
+                  "2026 CRA annual ($8,000) participation room and $40,000 lifetime contribution limit",
+                  "One-year carryforward and 15-year / age-71 account closure rules",
+                  "Marginal tax refund at ~$75,000 income using 2026 bracket tables",
+                  "Steady return rate; no withdrawals or RRSP transfers modeled",
+                ]}
+              />
               <ShareResultCard
                 headline="My FHSA for my first home 🏡"
                 lines={[

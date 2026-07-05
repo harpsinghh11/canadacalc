@@ -18,10 +18,14 @@ import {
   CalculatorGrid,
   CalculatorLayout,
   FormField,
-  ResultItem,
   inputClassName,
   inputErrorClassName,
 } from "@/components/CalculatorLayout";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import {
+  StockLookbackEmptyState,
+  StockLookbackResultPanel,
+} from "@/components/stock/StockLookbackResult";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
@@ -153,7 +157,9 @@ export default function StockLookbackCalculator() {
   const errors = useMemo(() => {
     const e: Record<string, string> = {};
     if (!inputs.ticker.trim()) e.ticker = "Enter a stock ticker";
-    if (inputs.shares < 1) e.shares = "Enter at least 1 share";
+    if (!Number.isFinite(inputs.shares) || inputs.shares < 1) {
+      e.shares = "Enter at least 1 share";
+    }
     const d = new Date(inputs.purchaseDate);
     if (isNaN(d.getTime()) || d > new Date()) e.purchaseDate = "Enter a valid past date";
     if (d < new Date("2000-01-01")) e.purchaseDate = "Date must be after 2000";
@@ -172,8 +178,18 @@ export default function StockLookbackCalculator() {
         )
       : null;
 
+  const inputsMatchSubmitted = useMemo(
+    () =>
+      inputs.ticker.trim().toUpperCase() === submittedInputs.ticker &&
+      inputs.shares === submittedInputs.shares &&
+      inputs.purchaseDate === submittedInputs.purchaseDate,
+    [inputs, submittedInputs],
+  );
+
   const displayResult =
-    !hasErrors && !loading && !error && result ? result : null;
+    !hasErrors && !loading && !error && result && inputsMatchSubmitted
+      ? result
+      : null;
 
   const chartData = useMemo(() => {
     if (!displayResult || chartSeries.length === 0) return [];
@@ -199,9 +215,9 @@ export default function StockLookbackCalculator() {
     chartData.some((point) => point.spyValue !== undefined);
 
   const isPositiveReturn = (displayResult?.profitLoss ?? 0) >= 0;
-  const lineColor = isPositiveReturn ? CHART_COLORS.primary : CHART_COLORS.negative;
+  const lineColor = isPositiveReturn ? CHART_COLORS.positive : CHART_COLORS.negative;
   const fillColor = isPositiveReturn
-    ? CHART_COLORS.gapFill
+    ? CHART_COLORS.positiveFill
     : CHART_COLORS.negativeFill;
 
   const benchmarkCallout = useMemo(() => {
@@ -299,7 +315,9 @@ export default function StockLookbackCalculator() {
 
     const nextErrors: Record<string, string> = {};
     if (!cleanedTicker) nextErrors.ticker = "Enter a stock ticker";
-    if (nextInputs.shares < 1) nextErrors.shares = "Enter at least 1 share";
+    if (!Number.isFinite(nextInputs.shares) || nextInputs.shares < 1) {
+      nextErrors.shares = "Enter at least 1 share";
+    }
     const d = new Date(nextInputs.purchaseDate);
     if (isNaN(d.getTime()) || d > new Date()) {
       nextErrors.purchaseDate = "Enter a valid past date";
@@ -368,8 +386,8 @@ export default function StockLookbackCalculator() {
   return (
     <>
       <CalculatorLayout
-        title="Stock Lookback Tool"
-        description="See what your investment would be worth today — look up a stock when you're ready."
+        title="Stock Lookback"
+        description="What if you bought that stock back then? Choose a ticker, purchase date, and number of shares to see what the position could be worth today."
         footer={
           <>
             <HowWeCalculate>
@@ -377,6 +395,13 @@ export default function StockLookbackCalculator() {
                 Annualized return uses (current value ÷ initial value)^(1 ÷ years) − 1.
                 We fetch historical prices from Yahoo Finance for your purchase date
                 and today, including a portfolio value chart compared to the S&P 500 (SPY).
+              </p>
+              <p>
+                <strong>Limitations:</strong> Share price only — dividends,
+                splits, fees, and taxes are not included. Total return with
+                reinvested dividends would be higher for dividend-paying stocks.
+                Prices are delayed market data and may not match your actual
+                trade execution.
               </p>
             </HowWeCalculate>
             <FAQ
@@ -456,9 +481,9 @@ export default function StockLookbackCalculator() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-[#16a34a] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#15803d] disabled:cursor-not-allowed disabled:bg-slate-400"
+                className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-[var(--radius-control)] bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-hover)] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
               >
-                {loading ? "Looking up..." : "Look Up Stock"}
+                {loading ? "Looking up…" : "Look Back"}
               </button>
             </form>
           }
@@ -471,17 +496,28 @@ export default function StockLookbackCalculator() {
             ) : error ? (
               <p className="text-sm text-red-600" role="alert">{error}</p>
             ) : hasErrors ? (
-              <p className="text-sm text-slate-500">Fix the errors above, then press Enter or click Look Up Stock.</p>
+              <p className="text-sm text-slate-500">Fix the errors above, then press Enter or click Look Back.</p>
             ) : displayResult ? (
-              <div className="min-w-0 max-w-full space-y-3">
-                <ResultItem label="Total Invested" value={formatCurrency(displayResult.totalInvested)} numericValue={displayResult.totalInvested} formatFn={formatCurrency} />
-                <ResultItem label="Current Value" value={formatCurrency(displayResult.currentValue)} numericValue={displayResult.currentValue} formatFn={formatCurrency} highlight />
-                <ResultItem label="Profit / Loss" value={formatCurrency(displayResult.profitLoss)} numericValue={displayResult.profitLoss} formatFn={formatCurrency} highlight={displayResult.profitLoss >= 0} />
-                <ResultItem label="Return" value={formatPercent(displayResult.percentReturn)} />
-                <ResultItem label="Annualized Return" value={formatPercent(displayResult.annualizedReturn)} />
+              <div className="min-w-0 max-w-full space-y-4">
+                <StockLookbackResultPanel
+                  ticker={submittedInputs.ticker}
+                  shares={submittedInputs.shares}
+                  purchaseDate={submittedInputs.purchaseDate}
+                  purchasePrice={displayResult.purchasePrice}
+                  currentPrice={displayResult.currentPrice}
+                  result={displayResult}
+                />
+                <CalculatorAssumptions
+                  items={[
+                    "Historical closing prices from Yahoo Finance",
+                    "Share price only — no dividends, fees, or taxes",
+                    "S&P 500 (SPY) comparison uses the same invested amount",
+                    "Prices may differ from your actual buy/sell execution",
+                  ]}
+                />
 
-                <div className="pt-2">
-                  <h3 className="mb-3 text-sm font-semibold text-[#0f172a]">
+                <div className="rounded-[var(--radius-control)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
                     Your investment over time
                   </h3>
                   {chartLoading ? (
@@ -551,6 +587,8 @@ export default function StockLookbackCalculator() {
                               <Line
                                 id="spy-benchmark-line"
                                 key="spy-line"
+                                type="monotone"
+                                dataKey="spyValue"
                                 name="S&P 500 (SPY)"
                                 stroke={CHART_COLORS.benchmark}
                                 strokeWidth={2}
@@ -580,7 +618,7 @@ export default function StockLookbackCalculator() {
                 />
               </div>
             ) : (
-              <p className="text-sm text-slate-500">Enter a ticker and purchase details, then press Enter or click Look Up Stock.</p>
+              <StockLookbackEmptyState />
             )
           }
         />

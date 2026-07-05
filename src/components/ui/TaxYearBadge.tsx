@@ -1,7 +1,13 @@
+import { LastUpdated } from "./LastUpdated";
+import { TAX_YEAR } from "@/lib/tax";
+
+/**
+ * Annual income tax estimator badge — scope is documented on the tax page.
+ */
 export function TaxYearBadge() {
   return (
-    <span className="inline-flex items-center rounded-full bg-[#16a34a]/10 px-3 py-1 text-xs font-medium text-[#16a34a]">
-      Last updated: 2025 tax year
-    </span>
+    <LastUpdated>
+      {TAX_YEAR} annual tax estimate
+    </LastUpdated>
   );
 }

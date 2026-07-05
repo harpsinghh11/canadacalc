@@ -7,7 +7,7 @@ interface SmartTipsProps {
 const styles: Record<SmartTip["type"], string> = {
   info: "border-blue-200 bg-blue-50 text-blue-900",
   warning: "border-amber-200 bg-amber-50 text-amber-900",
-  success: "border-green-200 bg-green-50 text-green-900",
+  success: "border-[var(--positive)]/20 bg-[var(--positive-muted)] text-[var(--positive)]",
 };
 
 export function SmartTips({ tips }: SmartTipsProps) {
@@ -15,7 +15,7 @@ export function SmartTips({ tips }: SmartTipsProps) {
 
   return (
     <div className="mt-6 min-w-0 max-w-full space-y-2">
-      <h3 className="text-sm font-semibold text-[#0f172a]">Smart Tips</h3>
+      <h3 className="text-sm font-semibold text-[var(--foreground)]">Smart Tips</h3>
       {tips.map((tip, i) => (
         <p
           key={i}

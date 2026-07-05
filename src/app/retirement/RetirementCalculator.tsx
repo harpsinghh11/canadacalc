@@ -10,6 +10,9 @@ import {
   inputClassName,
   selectClassName,
 } from "@/components/CalculatorLayout";
+import { ResultExplainer } from "@/components/ui/ResultExplainer";
+import { CalculatorAssumptions } from "@/components/ui/CalculatorAssumptions";
+import { OfficialSourceLinks } from "@/components/ui/OfficialSourceLinks";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { HowWeCalculate } from "@/components/ui/HowWeCalculate";
 import { FAQ } from "@/components/ui/FAQ";
@@ -91,6 +94,12 @@ export default function RetirementCalculator() {
                 to earn returns — not simple division. The &quot;money lasts&quot;
                 figure accounts for growth during drawdown.
               </p>
+              <p>
+                <strong>Limitations:</strong> Does not include CPP, OAS, workplace
+                pensions, or taxes in retirement; uses a fixed return rate and
+                steady withdrawals.
+              </p>
+              <OfficialSourceLinks sources={["cra", "craRrsp", "fcac"]} />
             </HowWeCalculate>
             <FAQ
               items={[
@@ -104,14 +113,14 @@ export default function RetirementCalculator() {
                       balanced portfolios averaged ~6–8%. Model growth with our{" "}
                       <Link
                         href="/compound"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         Compound Interest
                       </Link>{" "}
                       or{" "}
                       <Link
                         href="/simple-interest"
-                        className="font-medium text-[#16a34a] underline"
+                        className="font-medium text-[var(--brand)] underline"
                       >
                         Simple Interest
                       </Link>{" "}
@@ -168,9 +177,26 @@ export default function RetirementCalculator() {
                   <span>{result.progressPercent.toFixed(0)}%</span>
                 </div>
                 <div className="h-4 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full rounded-full bg-[#16a34a] transition-all" style={{ width: `${Math.min(100, result.progressPercent)}%` }} />
+                  <div className="h-full rounded-full bg-[var(--brand)] transition-all" style={{ width: `${Math.min(100, result.progressPercent)}%` }} />
                 </div>
               </div>
+              <ResultExplainer>
+                By age <strong>{debounced.retirementAge}</strong>, you could have about{" "}
+                <strong>{formatCurrency(result.projectedSavings)}</strong> saved.
+                At a 4% withdrawal rate that supports roughly{" "}
+                <strong>{formatCurrency(result.monthlyIncomeAvailable)}/month</strong>.
+                At your expected spending of{" "}
+                <strong>{formatCurrency(debounced.monthlyExpenses)}/month</strong>,
+                savings would last about <strong>{yearsLabel}</strong>.
+              </ResultExplainer>
+              <CalculatorAssumptions
+                items={[
+                  `Fixed ${debounced.returnRate}% return with monthly compounding until retirement`,
+                  "4% rule for sustainable monthly income estimate",
+                  "Monthly withdrawals at your stated retirement expenses",
+                  "No CPP, OAS, pension income, or retirement taxes included",
+                ]}
+              />
               <SmartTips tips={tips} />
               <ShareResultCard
                 headline="My retirement plan"

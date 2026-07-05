@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import CompoundCalculator from "./CompoundCalculator";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Compound Interest Calculator",
   description:
-    "Calculate compound interest with monthly or biweekly contributions, and see exactly how much more you earn vs simple interest. Free Canadian calculator updated for 2025.",
-};
+    "See how compound interest grows savings over time. Compare compound vs simple interest with year-by-year breakdown.",
+  path: "/compound",
+});
 
 export default function CompoundPage() {
   return <CompoundCalculator />;

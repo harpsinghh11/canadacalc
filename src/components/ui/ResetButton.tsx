@@ -9,7 +9,7 @@ export function ResetButton({ onReset }: ResetButtonProps) {
     <button
       type="button"
       onClick={onReset}
-      className="mb-4 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      className="mb-4 rounded-[var(--radius-control)] border border-[var(--border-strong)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
     >
       Reset
     </button>

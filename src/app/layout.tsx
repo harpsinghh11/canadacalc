@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import Script from "next/script";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/constants";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -11,14 +12,33 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "CanadaCalc — Canadian Financial Calculators",
-    template: "%s | CanadaCalc",
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Free Canadian personal finance calculators: TFSA, FHSA, mortgage, tax, retirement, compound and simple interest, and stock lookback tools.",
+    "Free Canadian financial calculators for tax, mortgage, TFSA, FHSA, retirement, and more — with plain-English explanations built for Canadians.",
   icons: {
     icon: "/icon.svg",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_CA",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description:
+      "Estimate tax, mortgage payments, TFSA growth, retirement savings, and more — with simple explanations.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description:
+      "Canadian financial calculators with plain-English explanations. Free, no signup.",
+  },
+  alternates: {
+    canonical: SITE_URL,
   },
 };
 
@@ -28,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
+    <html lang="en-CA" className={`${geistSans.variable} h-full antialiased`}>
       <body className="flex min-h-full min-w-0 flex-col bg-white">
         {process.env.NODE_ENV === "production" && (
           <>
@@ -49,6 +69,18 @@ export default function RootLayout({
         <Navbar />
         <main className="min-w-0 flex-1">{children}</main>
         <Footer />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: SITE_NAME,
+              url: SITE_URL,
+              description: SITE_TAGLINE,
+            }),
+          }}
+        />
       </body>
     </html>
   );

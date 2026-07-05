@@ -39,16 +39,16 @@ export function CalculatorLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
       />
-      <div className="mb-8">
+      <div className="mb-8 max-w-3xl">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold text-[#0f172a] sm:text-3xl">
+          <h1 className="text-2xl font-bold text-[var(--foreground)] sm:text-3xl">
             {title}
           </h1>
           {badge}
         </div>
-        <p className="mt-2 text-base text-slate-600">{description}</p>
+        <p className="mt-2 text-base text-[var(--muted)]">{description}</p>
       </div>
-      <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="min-w-0 rounded-[var(--radius-surface)] border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6">
         {children}
         {footer}
       </div>
@@ -68,7 +68,7 @@ interface CalculatorGridProps {
 
 /** Pins inputs below the sticky navbar (h-14 / top-14 = 3.5rem). */
 const stickyInputsInnerClass =
-  "lg:sticky lg:top-14 lg:z-20 lg:bg-white lg:pb-4";
+  "lg:sticky lg:top-[var(--site-navbar-height)] lg:z-20 lg:bg-[var(--surface)] lg:pb-4";
 
 export function CalculatorGrid({
   inputs,
@@ -86,7 +86,9 @@ export function CalculatorGrid({
           className="min-w-0 max-w-full lg:self-stretch"
         >
           <div className={stickyInputs ? stickyInputsInnerClass : undefined}>
-            <h2 className="mb-4 text-lg font-semibold text-[#0f172a]">Inputs</h2>
+            <h2 className="mb-4 text-lg font-semibold text-[var(--foreground)]">
+              Your inputs
+            </h2>
             {inputs}
           </div>
           {inputsFooter && <div className="mt-8">{inputsFooter}</div>}
@@ -95,7 +97,9 @@ export function CalculatorGrid({
           aria-label="Calculator results"
           className="min-w-0 max-w-full"
         >
-          <h2 className="mb-4 text-lg font-semibold text-[#0f172a]">Results</h2>
+          <h2 className="mb-4 text-lg font-semibold text-[var(--foreground)]">
+            Your results
+          </h2>
           {results}
         </section>
       </div>
@@ -124,7 +128,7 @@ export function FormField({
     <div className="mb-4">
       <label
         htmlFor={htmlFor}
-        className="mb-1 flex items-center text-sm font-medium text-slate-700"
+        className="mb-1 flex items-center text-sm font-medium text-[var(--foreground)]"
       >
         {label}
         {tooltip && <Tooltip text={tooltip} />}
@@ -136,17 +140,17 @@ export function FormField({
         </p>
       )}
       {hint && !error && (
-        <p className="mt-1 text-xs text-slate-500">{hint}</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">{hint}</p>
       )}
     </div>
   );
 }
 
 export const inputClassName =
-  "w-full min-h-[44px] rounded-lg border border-slate-300 px-3 py-2.5 text-base text-slate-900 shadow-sm focus:border-[#16a34a] focus:outline-none focus:ring-1 focus:ring-[#16a34a] sm:text-sm";
+  "w-full min-h-11 rounded-[var(--radius-control)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2.5 text-base text-[var(--foreground)] tabular-nums shadow-sm transition-[border-color,box-shadow] duration-150 focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/20 sm:text-sm";
 
 export const inputErrorClassName =
-  "w-full rounded-lg border border-red-400 px-3 py-2.5 text-base text-slate-900 shadow-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 sm:text-sm";
+  "w-full min-h-11 rounded-[var(--radius-control)] border border-[var(--negative)] px-3 py-2.5 text-base text-[var(--foreground)] tabular-nums shadow-sm focus:border-[var(--negative)] focus:outline-none focus:ring-2 focus:ring-[var(--negative)]/20 sm:text-sm";
 
 export const selectClassName = inputClassName;
 
@@ -170,15 +174,15 @@ export function ResultItem({
 
   return (
     <div
-      className={`flex min-w-0 items-center justify-between gap-2 rounded-lg px-4 py-3 ${
-        highlight ? "bg-[#16a34a]/10" : "bg-slate-50"
+      className={`flex min-w-0 items-center justify-between gap-2 rounded-[var(--radius-control)] px-4 py-3 ${
+        highlight ? "bg-[var(--positive-muted)]" : "bg-[var(--surface-muted)]"
       }`}
     >
-      <span className="min-w-0 shrink text-sm text-slate-600 break-words">
+      <span className="min-w-0 shrink text-sm text-[var(--muted)] break-words">
         {label}
       </span>
       <span
-        className={`shrink-0 pl-2 text-right text-sm font-semibold tabular-nums ${highlight ? "text-[#16a34a]" : "text-[#0f172a]"}`}
+        className={`shrink-0 pl-2 text-right text-sm font-semibold tabular-nums ${highlight ? "text-[var(--positive)]" : "text-[var(--foreground)]"}`}
       >
         {showAnimated ? (
           <AnimatedNumber
